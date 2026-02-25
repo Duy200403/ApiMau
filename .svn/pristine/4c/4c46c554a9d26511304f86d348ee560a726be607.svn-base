@@ -1,0 +1,45 @@
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "Server=localhost;Database=DbTest;Trusted_Connection=True;MultipleActiveResultSets=true;",
+    "RedisConnection": "localhost:6379"
+  },
+  "Logging": {
+    "LogLevel": {
+      "Default": "Information",
+      "Microsoft": "Warning",
+      "Microsoft.Hosting.Lifetime": "Information"
+    }
+  },
+  "JwtIssuerOptions": {
+    "Secret": "THIS IS USED TO SIGN AND VERIFY JWT TOKENS, REPLACE IT WITH YOUR OWN SECRET, IT CAN BE ANY STRING",
+    "JwtIssuer": "eplatform",
+    "JwtExpireDays": "30"
+  },
+  "VirtualPathConfig": [
+    {
+      "Realpath": "website_data\\images",
+      "RequestPath": "/images",
+      "Alias": "images"
+    },
+    {
+      "Realpath": "website_data\\videos",
+      "RequestPath": "/videos",
+      "Alias": "videos"
+    },
+    {
+      "Realpath": "website_data\\document",
+      "RequestPath": "/document",
+      "Alias": "document"
+    },
+    {
+      "Realpath": "website_data\\.well-known",
+      "RequestPath": "/.well-known",
+      "Alias": "wellknown"
+    }
+  ],
+  "AppSetting": {
+    "Domain": "http://localhost:3000",
+    "DomainNewsCrawler": "http://localhost:4500",
+    "FileSizeLimit": 2097152
+  }
+}

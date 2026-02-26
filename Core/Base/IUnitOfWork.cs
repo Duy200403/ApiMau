@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using ApiWebsite.Models;
+using ApiWebsite.Models.Logger.AuditLog;
 
 namespace ApiWebsite.Core.Base
 {
@@ -13,5 +14,12 @@ namespace ApiWebsite.Core.Base
         IGenericRepository<Log> Log { get; }
         IGenericRepository<LoginHistory> LoginHistory { get; }
         IGenericRepository<Welcome> Welcome { get; }
+        IGenericRepository<BiddingProject> BiddingProject { get; }
+        IGenericRepository<ProcessBranch> ProcessBranch { get; }
+        IGenericRepository<ProcessStep> ProcessStep { get; }
+        IGenericRepository<ProjectStep> ProjectStep { get; }
+        IGenericRepository<ProjectStepAttachment> ProjectStepAttachment { get; }
+        IGenericRepository<StepAttribute> StepAttribute { get; }
+        IGenericRepository<AuditLog> AuditLog { get; }
     }
 }

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Reflection;
 using System.Linq;
 using ApiWebsite.Models;
+using ApiWebsite.Models.Logger.AuditLog;
 
 namespace ApiWebsite.Core.Base
 {
@@ -58,5 +59,12 @@ namespace ApiWebsite.Core.Base
         public IGenericRepository<Account> Account { get; private set; }
         public IGenericRepository<LoginHistory> LoginHistory { get; private set; }
         public IGenericRepository<Welcome> Welcome { get; private set; }
+        public IGenericRepository<BiddingProject> BiddingProject { get; private set; }
+        public IGenericRepository<ProcessBranch> ProcessBranch { get; private set; }
+        public IGenericRepository<ProjectStep> ProjectStep { get; private set; }
+        public IGenericRepository<ProcessStep> ProcessStep { get; private set; }
+        public IGenericRepository<ProjectStepAttachment> ProjectStepAttachment { get; private set; }
+        public IGenericRepository<StepAttribute> StepAttribute { get; private set; }
+        public IGenericRepository<AuditLog> AuditLog { get; private set; }
     }
 }

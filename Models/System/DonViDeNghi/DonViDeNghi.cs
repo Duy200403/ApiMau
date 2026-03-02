@@ -12,8 +12,6 @@ namespace ApiWebsite.Models.System.DonViDeNghi
 
         [Column(TypeName = "NVARCHAR(250)")]
         public string Name { get; set; }
-
         public long? ParentId { get; set; }
-        public virtual DonViDeNghi Parent { get; set; }
     }
 }

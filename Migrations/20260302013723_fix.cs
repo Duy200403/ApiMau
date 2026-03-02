@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace ApiWebsite.Migrations
 {
-    public partial class AddBiddingModels : Migration
+    public partial class fix : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -45,12 +45,6 @@ namespace ApiWebsite.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_DonViDeNghi", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_DonViDeNghi_DonViDeNghi_ParentId",
-                        column: x => x.ParentId,
-                        principalTable: "DonViDeNghi",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -113,12 +107,6 @@ namespace ApiWebsite.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_BiddingProject", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_BiddingProject_ProcessBranch_ProcessBranchId",
-                        column: x => x.ProcessBranchId,
-                        principalTable: "ProcessBranch",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -143,18 +131,25 @@ namespace ApiWebsite.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProcessStep", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProcessStep_DonViDeNghi_TargetDonViId",
-                        column: x => x.TargetDonViId,
-                        principalTable: "DonViDeNghi",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProcessStep_ProcessBranch_ProcessBranchId",
-                        column: x => x.ProcessBranchId,
-                        principalTable: "ProcessBranch",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProjectFormSchema",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    BiddingProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    StepsSchemaJson = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Timestamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "NVARCHAR(250)", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "NVARCHAR(250)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectFormSchema", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -180,18 +175,6 @@ namespace ApiWebsite.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProjectStep", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProjectStep_BiddingProject_BiddingProjectId",
-                        column: x => x.BiddingProjectId,
-                        principalTable: "BiddingProject",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_ProjectStep_ProcessStep_ProcessStepId",
-                        column: x => x.ProcessStepId,
-                        principalTable: "ProcessStep",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -216,12 +199,29 @@ namespace ApiWebsite.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_StepAttribute", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_StepAttribute_ProcessStep_ProcessStepId",
-                        column: x => x.ProcessStepId,
-                        principalTable: "ProcessStep",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "ProjectDataIndex",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    BiddingProjectId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ProjectStepId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    FieldCode = table.Column<string>(type: "NVARCHAR(100)", nullable: true),
+                    TextValue = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NumberValue = table.Column<decimal>(type: "decimal(18,4)", nullable: true),
+                    DateValue = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Timestamp = table.Column<byte[]>(type: "rowversion", rowVersion: true, nullable: true),
+                    CreatedDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CreatedBy = table.Column<string>(type: "NVARCHAR(250)", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    UpdatedBy = table.Column<string>(type: "NVARCHAR(250)", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "bit", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_ProjectDataIndex", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -244,83 +244,22 @@ namespace ApiWebsite.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_ProjectStepAttachment", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_ProjectStepAttachment_ProjectStep_ProjectStepId",
-                        column: x => x.ProjectStepId,
-                        principalTable: "ProjectStep",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
                 });
-
-            migrationBuilder.CreateIndex(
-                name: "IX_BiddingProject_ProcessBranchId",
-                table: "BiddingProject",
-                column: "ProcessBranchId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_DonViDeNghi_ParentId",
-                table: "DonViDeNghi",
-                column: "ParentId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProcessStep_ProcessBranchId",
-                table: "ProcessStep",
-                column: "ProcessBranchId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProcessStep_TargetDonViId",
-                table: "ProcessStep",
-                column: "TargetDonViId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProjectStep_BiddingProjectId",
-                table: "ProjectStep",
-                column: "BiddingProjectId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProjectStep_ProcessStepId",
-                table: "ProjectStep",
-                column: "ProcessStepId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_ProjectStepAttachment_ProjectStepId",
-                table: "ProjectStepAttachment",
-                column: "ProjectStepId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_StepAttribute_ProcessStepId",
-                table: "StepAttribute",
-                column: "ProcessStepId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.DropTable(
-                name: "AuditLog");
-
-            migrationBuilder.DropTable(
-                name: "Permission");
-
-            migrationBuilder.DropTable(
-                name: "ProjectStepAttachment");
-
-            migrationBuilder.DropTable(
-                name: "StepAttribute");
-
-            migrationBuilder.DropTable(
-                name: "ProjectStep");
-
-            migrationBuilder.DropTable(
-                name: "BiddingProject");
-
-            migrationBuilder.DropTable(
-                name: "ProcessStep");
-
-            migrationBuilder.DropTable(
-                name: "DonViDeNghi");
-
-            migrationBuilder.DropTable(
-                name: "ProcessBranch");
+            migrationBuilder.DropTable(name: "AuditLog");
+            migrationBuilder.DropTable(name: "Permission");
+            migrationBuilder.DropTable(name: "ProjectDataIndex");
+            migrationBuilder.DropTable(name: "ProjectFormSchema");
+            migrationBuilder.DropTable(name: "ProjectStepAttachment");
+            migrationBuilder.DropTable(name: "StepAttribute");
+            migrationBuilder.DropTable(name: "ProjectStep");
+            migrationBuilder.DropTable(name: "BiddingProject");
+            migrationBuilder.DropTable(name: "ProcessStep");
+            migrationBuilder.DropTable(name: "DonViDeNghi");
+            migrationBuilder.DropTable(name: "ProcessBranch");
         }
     }
 }

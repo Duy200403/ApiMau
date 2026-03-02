@@ -4,8 +4,8 @@ using System.Threading.Tasks;
 using ApiWebsite.Common;
 using ApiWebsite.Core.Base;
 using ApiWebsite.Helper;
-using ApiWebsite.Models; // Chứa Entity BiddingProject, ProcessStep...
-using ApiWebsite.Models.Bidding; // Chứa Request, Response, PagingFilter
+using ApiWebsite.Models;
+using ApiWebsite.Models.Bidding;
 using ApiWebsite.Models.Response;
 using AutoMapper;
 using System.Linq;
@@ -14,13 +14,14 @@ using Microsoft.AspNetCore.Http;
 
 namespace ApiWebsite.Core.Services
 {
-    public interface IBiddingProjectService : IBaseService<BiddingProject>
+    // Gọi đích danh ApiWebsite.Models.BiddingProject để C# không nhầm với namespace
+    public interface IBiddingProjectService : IBaseService<ApiWebsite.Models.BiddingProject>
     {
-        Task<PagedResult<BiddingProjectResponse>> GetAllPaging(BiddingProjectPagingFilter request);
+        Task<PagedResult<BiddingProjectResponse>> GetAllByPaging(BiddingProjectPagingFilter request);
         Task<dynamic> CreateProjectAsync(BiddingProjectRequest request);
     }
 
-    public class BiddingProjectService : BaseService<BiddingProject>, IBiddingProjectService
+    public class BiddingProjectService : BaseService<ApiWebsite.Models.BiddingProject>, IBiddingProjectService
     {
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _dbContext;
@@ -40,47 +41,38 @@ namespace ApiWebsite.Core.Services
             _httpContextAccessor = httpContextAccessor;
         }
 
-        // HÀM 1: PHÂN TRANG CHUẨN THEO BASE SERVICE
-        public async Task<PagedResult<BiddingProjectResponse>> GetAllPaging(BiddingProjectPagingFilter request)
+        public async Task<PagedResult<BiddingProjectResponse>> GetAllByPaging(BiddingProjectPagingFilter request)
         {
-            // 1. Khởi tạo mệnh đề truy vấn LINQ
-            var predicateFilter = PredicateBuilder.True<BiddingProject>();
+            var predicateFilter = PredicateBuilder.True<ApiWebsite.Models.BiddingProject>();
             predicateFilter = predicateFilter.And(x => !x.IsDeleted);
 
-            // 2. Lọc theo từ khóa (Mã gói thầu hoặc Tên gói thầu)
             if (!string.IsNullOrEmpty(request.Keyword))
             {
                 string key = request.Keyword.ToLower().Trim();
                 predicateFilter = predicateFilter.And(x => x.ProjectName.ToLower().Contains(key) || x.ProjectCode.ToLower().Contains(key));
             }
 
-            // 3. Lọc theo Trạng thái (Nếu có truyền lên)
             if (!string.IsNullOrEmpty(request.Status))
             {
                 predicateFilter = predicateFilter.And(x => x.Status == request.Status);
             }
 
-            // 4. Lọc theo Nhánh quy trình
             if (request.ProcessBranchId.HasValue)
             {
                 predicateFilter = predicateFilter.And(x => x.ProcessBranchId == request.ProcessBranchId.Value);
             }
 
-            // 5. Đếm tổng số bản ghi bằng hàm CountAsync của BaseService
             long totalRow = await this.CountAsync(predicateFilter);
 
-            // 6. Lấy dữ liệu phân trang, Sort giảm dần theo ngày tạo
-            // Đặc biệt: Dùng params includes (x => x.ProcessBranch) để tự động JOIN lấy tên nhánh
-            IEnumerable<BiddingProject> data = await _unitOfWork.BiddingProject.GetSortedPaginatedAsync(
+            IEnumerable<ApiWebsite.Models.BiddingProject> data = await _unitOfWork.BiddingProject.GetSortedPaginatedAsync(
                 predicateFilter,
-                nameof(BiddingProject.CreatedDate),
+                nameof(ApiWebsite.Models.BiddingProject.CreatedDate),
                 SortDirection.DESC,
                 request.PageIndex,
                 request.PageSize,
-                x => x.ProcessBranch // Gọi Include ProcessBranch
+                x => x.ProcessBranch
             );
 
-            // 7. Map sang Response
             var dataMapped = _mapper.Map<IEnumerable<BiddingProjectResponse>>(data);
 
             var pagedResult = new PagedResult<BiddingProjectResponse>()
@@ -94,19 +86,16 @@ namespace ApiWebsite.Core.Services
             return pagedResult;
         }
 
-        // HÀM 2: KHỞI TẠO GÓI THẦU 
         public async Task<dynamic> CreateProjectAsync(BiddingProjectRequest request)
         {
             try
             {
-                // Sử dụng AnyAsync của BaseService để kiểm tra trùng lặp
                 bool isExist = await this.AnyAsync(x => x.ProjectCode == request.ProjectCode && !x.IsDeleted);
                 if (isExist)
                 {
                     return new ErrorResponseModel { Type = "DuplicateCode", Title = "Lỗi dữ liệu", Errors = new Dictionary<string, string[]> { { "ProjectCode", new[] { "Mã gói thầu đã tồn tại" } } } };
                 }
 
-                // Lấy ra danh sách các bước của nhánh được chọn
                 var processSteps = await _dbContext.ProcessSteps
                     .Where(x => x.ProcessBranchId == request.ProcessBranchId && !x.IsDeleted)
                     .OrderBy(x => x.Order)
@@ -117,13 +106,11 @@ namespace ApiWebsite.Core.Services
                     return new ErrorResponseModel { Type = "ConfigError", Title = "Lỗi", Errors = new Dictionary<string, string[]> { { "ProcessBranchId", new[] { "Nhánh này chưa cấu hình các bước." } } } };
                 }
 
-                // Map dữ liệu từ Request sang Entity
-                var newProject = _mapper.Map<BiddingProject>(request);
+                var newProject = _mapper.Map<ApiWebsite.Models.BiddingProject>(request);
                 newProject.Id = Guid.NewGuid();
                 newProject.CurrentStepOrder = processSteps.First().Order;
                 newProject.Status = "InProgress";
 
-                // Tự động sinh danh sách công việc thực tế
                 var projectSteps = new List<ProjectStep>();
                 foreach (var step in processSteps)
                 {
@@ -137,7 +124,6 @@ namespace ApiWebsite.Core.Services
                     });
                 }
 
-                // Sử dụng AddOneAsync và AddManyAsync của BaseService
                 await _unitOfWork.BiddingProject.AddOneAsync(newProject);
                 await _unitOfWork.ProjectStep.AddManyAsync(projectSteps);
 
@@ -150,6 +136,14 @@ namespace ApiWebsite.Core.Services
                 await _logService.AddLogWebInfo(LogLevelWebInfo.error, "BiddingProjectService - Create", ex.Message);
                 return new ErrorResponseModel { Type = "Exception", Title = "Lỗi hệ thống", Errors = new Dictionary<string, string[]> { { "System", new[] { "Đã có lỗi xảy ra." } } } };
             }
+        }
+
+        // Ghi đè Upsert theo đúng chuẩn cũ
+        public override async Task<ApiWebsite.Models.BiddingProject> UpsertAsync(ApiWebsite.Models.BiddingProject entity)
+        {
+            var result = await _unitOfWork.BiddingProject.UpsertAsync(entity);
+            await _unitOfWork.CompleteAsync();
+            return result;
         }
     }
 }

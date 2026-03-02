@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApiWebsite.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20260226015940_AddBiddingModels")]
-    partial class AddBiddingModels
+    [Migration("20260302013723_fix")]
+    partial class fix
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -440,6 +440,113 @@ namespace ApiWebsite.Migrations
                     b.ToTable("ProcessStep");
                 });
 
+            modelBuilder.Entity("ApiWebsite.Models.ProjectDataIndex", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BiddingProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("BiddingProjectId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("NVARCHAR(250)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DateValue")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("FieldCode")
+                        .HasColumnType("NVARCHAR(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<decimal?>("NumberValue")
+                        .HasColumnType("decimal(18,4)");
+
+                    b.Property<Guid>("ProjectStepId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("ProjectStepId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("TextValue")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("NVARCHAR(250)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BiddingProjectId");
+
+                    b.HasIndex("BiddingProjectId1");
+
+                    b.HasIndex("ProjectStepId");
+
+                    b.HasIndex("ProjectStepId1");
+
+                    b.ToTable("ProjectDataIndex");
+                });
+
+            modelBuilder.Entity("ApiWebsite.Models.ProjectFormSchema", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid>("BiddingProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<Guid?>("BiddingProjectId1")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("NVARCHAR(250)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("StepsSchemaJson")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<byte[]>("Timestamp")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("rowversion");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasColumnType("NVARCHAR(250)");
+
+                    b.Property<DateTime?>("UpdatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("BiddingProjectId");
+
+                    b.HasIndex("BiddingProjectId1");
+
+                    b.ToTable("ProjectFormSchema");
+                });
+
             modelBuilder.Entity("ApiWebsite.Models.ProjectStep", b =>
                 {
                     b.Property<Guid>("Id")
@@ -639,8 +746,6 @@ namespace ApiWebsite.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ParentId");
-
                     b.ToTable("DonViDeNghi");
                 });
 
@@ -762,6 +867,48 @@ namespace ApiWebsite.Migrations
                     b.Navigation("TargetDonVi");
                 });
 
+            modelBuilder.Entity("ApiWebsite.Models.ProjectDataIndex", b =>
+                {
+                    b.HasOne("ApiWebsite.Models.BiddingProject", null)
+                        .WithMany()
+                        .HasForeignKey("BiddingProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ApiWebsite.Models.BiddingProject", "BiddingProject")
+                        .WithMany()
+                        .HasForeignKey("BiddingProjectId1");
+
+                    b.HasOne("ApiWebsite.Models.ProjectStep", null)
+                        .WithMany()
+                        .HasForeignKey("ProjectStepId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ApiWebsite.Models.ProjectStep", "ProjectStep")
+                        .WithMany()
+                        .HasForeignKey("ProjectStepId1");
+
+                    b.Navigation("BiddingProject");
+
+                    b.Navigation("ProjectStep");
+                });
+
+            modelBuilder.Entity("ApiWebsite.Models.ProjectFormSchema", b =>
+                {
+                    b.HasOne("ApiWebsite.Models.BiddingProject", null)
+                        .WithMany()
+                        .HasForeignKey("BiddingProjectId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("ApiWebsite.Models.BiddingProject", "BiddingProject")
+                        .WithMany()
+                        .HasForeignKey("BiddingProjectId1");
+
+                    b.Navigation("BiddingProject");
+                });
+
             modelBuilder.Entity("ApiWebsite.Models.ProjectStep", b =>
                 {
                     b.HasOne("ApiWebsite.Models.BiddingProject", "BiddingProject")
@@ -801,15 +948,6 @@ namespace ApiWebsite.Migrations
                         .IsRequired();
 
                     b.Navigation("ProcessStep");
-                });
-
-            modelBuilder.Entity("ApiWebsite.Models.System.DonViDeNghi.DonViDeNghi", b =>
-                {
-                    b.HasOne("ApiWebsite.Models.System.DonViDeNghi.DonViDeNghi", "Parent")
-                        .WithMany()
-                        .HasForeignKey("ParentId");
-
-                    b.Navigation("Parent");
                 });
 
             modelBuilder.Entity("ApiWebsite.Models.Account", b =>

@@ -180,7 +180,10 @@ namespace ApiWebsite
                 });
             });
 
-            var task = Task.Run(async () => await Core.Services.SeedDataService.SeedAccount(app.ApplicationServices));
+            var task = Task.Run(async () => {
+                await Core.Services.SeedDataService.SeedAccount(app.ApplicationServices);
+                await Core.Services.SeedDataService.SeedBiddingData(app.ApplicationServices);
+            });
         }
 
     }

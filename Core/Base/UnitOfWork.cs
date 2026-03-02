@@ -66,5 +66,7 @@ namespace ApiWebsite.Core.Base
         public IGenericRepository<ProjectStepAttachment> ProjectStepAttachment { get; private set; }
         public IGenericRepository<StepAttribute> StepAttribute { get; private set; }
         public IGenericRepository<AuditLog> AuditLog { get; private set; }
+        public IGenericRepository<ProjectFormSchema> ProjectFormSchema { get; }
+        public IGenericRepository<ProjectDataIndex> ProjectDataIndex { get; }
     }
 }

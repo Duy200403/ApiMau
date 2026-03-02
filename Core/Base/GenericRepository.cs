@@ -14,9 +14,9 @@ namespace ApiWebsite.Core.Base
     {
         private ApplicationDbContext _context;
         private DbSet<T> dbSet;
-        protected readonly ILogger _logger;
+        protected readonly ILogger<T> _logger;
 
-        public GenericRepository(ApplicationDbContext context, ILogger logger)
+        public GenericRepository(ApplicationDbContext context, ILogger<T> logger)
         {
             _context = context;
             _logger = logger;

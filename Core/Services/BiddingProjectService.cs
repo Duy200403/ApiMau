@@ -15,13 +15,13 @@ using Microsoft.AspNetCore.Http;
 namespace ApiWebsite.Core.Services
 {
     // Gọi đích danh ApiWebsite.Models.BiddingProject để C# không nhầm với namespace
-    public interface IBiddingProjectService : IBaseService<ApiWebsite.Models.BiddingProject>
+    public interface IBiddingProjectService : IBaseService<BiddingProject>
     {
         Task<PagedResult<BiddingProjectResponse>> GetAllByPaging(BiddingProjectPagingFilter request);
         Task<dynamic> CreateProjectAsync(BiddingProjectRequest request);
     }
 
-    public class BiddingProjectService : BaseService<ApiWebsite.Models.BiddingProject>, IBiddingProjectService
+    public class BiddingProjectService : BaseService<BiddingProject>, IBiddingProjectService
     {
         private readonly IMapper _mapper;
         private readonly ApplicationDbContext _dbContext;
@@ -43,7 +43,7 @@ namespace ApiWebsite.Core.Services
 
         public async Task<PagedResult<BiddingProjectResponse>> GetAllByPaging(BiddingProjectPagingFilter request)
         {
-            var predicateFilter = PredicateBuilder.True<ApiWebsite.Models.BiddingProject>();
+            var predicateFilter = PredicateBuilder.True<BiddingProject>();
             predicateFilter = predicateFilter.And(x => !x.IsDeleted);
 
             if (!string.IsNullOrEmpty(request.Keyword))
@@ -64,7 +64,7 @@ namespace ApiWebsite.Core.Services
 
             long totalRow = await this.CountAsync(predicateFilter);
 
-            IEnumerable<ApiWebsite.Models.BiddingProject> data = await _unitOfWork.BiddingProject.GetSortedPaginatedAsync(
+            IEnumerable<BiddingProject> data = await _unitOfWork.BiddingProject.GetSortedPaginatedAsync(
                 predicateFilter,
                 nameof(ApiWebsite.Models.BiddingProject.CreatedDate),
                 SortDirection.DESC,
@@ -106,7 +106,7 @@ namespace ApiWebsite.Core.Services
                     return new ErrorResponseModel { Type = "ConfigError", Title = "Lỗi", Errors = new Dictionary<string, string[]> { { "ProcessBranchId", new[] { "Nhánh này chưa cấu hình các bước." } } } };
                 }
 
-                var newProject = _mapper.Map<ApiWebsite.Models.BiddingProject>(request);
+                var newProject = _mapper.Map<BiddingProject>(request);
                 newProject.Id = Guid.NewGuid();
                 newProject.CurrentStepOrder = processSteps.First().Order;
                 newProject.Status = "InProgress";
@@ -139,7 +139,7 @@ namespace ApiWebsite.Core.Services
         }
 
         // Ghi đè Upsert theo đúng chuẩn cũ
-        public override async Task<ApiWebsite.Models.BiddingProject> UpsertAsync(ApiWebsite.Models.BiddingProject entity)
+        public override async Task<BiddingProject> UpsertAsync(BiddingProject entity)
         {
             var result = await _unitOfWork.BiddingProject.UpsertAsync(entity);
             await _unitOfWork.CompleteAsync();

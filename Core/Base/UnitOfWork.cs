@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Linq;
 using ApiWebsite.Models;
 using ApiWebsite.Models.Logger.AuditLog;
+using ApiWebsite.Models.System.DonViDeNghi;
 
 namespace ApiWebsite.Core.Base
 {
@@ -66,7 +67,8 @@ namespace ApiWebsite.Core.Base
         public IGenericRepository<ProjectStepAttachment> ProjectStepAttachment { get; private set; }
         public IGenericRepository<StepAttribute> StepAttribute { get; private set; }
         public IGenericRepository<AuditLog> AuditLog { get; private set; }
-        public IGenericRepository<ProjectFormSchema> ProjectFormSchema { get; }
-        public IGenericRepository<ProjectDataIndex> ProjectDataIndex { get; }
+        public IGenericRepository<ProjectFormSchema> ProjectFormSchema { get; private set; }
+        public IGenericRepository<ProjectDataIndex> ProjectDataIndex { get; private set; }
+        public IGenericRepository<DonViDeNghi> DonViDeNghi { get; private set; }
     }
 }

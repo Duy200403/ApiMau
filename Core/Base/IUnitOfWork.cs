@@ -1,6 +1,7 @@
 using System.Threading.Tasks;
 using ApiWebsite.Models;
 using ApiWebsite.Models.Logger.AuditLog;
+using ApiWebsite.Models.System.DonViDeNghi;
 
 namespace ApiWebsite.Core.Base
 {
@@ -23,5 +24,6 @@ namespace ApiWebsite.Core.Base
         IGenericRepository<AuditLog> AuditLog { get; }
         IGenericRepository<ProjectFormSchema> ProjectFormSchema { get; }
         IGenericRepository<ProjectDataIndex> ProjectDataIndex { get; }
+        IGenericRepository<DonViDeNghi> DonViDeNghi { get; }
     }
 }
